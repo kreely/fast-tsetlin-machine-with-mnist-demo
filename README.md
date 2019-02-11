@@ -1,4 +1,4 @@
-# fast-tsetlin-machine-with-mnist-demo
+# A Fast Tsetlin Machine Implementation Employing Bit-Wise Operators
 An implementation of the Tsetlin Machine (https://arxiv.org/abs/1804.01508) using bitwise operations for increased learning- and classification speed.
 
 On the MNIST dataset, the bit manipulation leads to approx.
@@ -6,7 +6,15 @@ On the MNIST dataset, the bit manipulation leads to approx.
 * 8 times quicker classification, and
 * 3.5 times faster learning,
 
-compared to the vanilla Cython (https://github.com/cair/TsetlinMachine) and C (https://github.com/cair/TsetlinMachineC) implementations. 
+compared to the vanilla Cython (https://github.com/cair/TsetlinMachine) and C (https://github.com/cair/TsetlinMachineC) implementations.
+
+## Bit-Based Representation and Manipulation of Patterns
+
+The Tsetlin Machine solves complex pattern recognition problems with propositional formulas, composed by a collective of Tsetlin Automata. In this implementation, we express both inputs, patterns, and outputs as bits, while recognition and learning rely on bit manipulation. Briefly stated, the states of the Tsetlin Automata are jointly represented using multiple sequences of bits (e.g., 8 sequences to represent an 8 bit state index). Sequence 1 contains the first bit of each state index. Sequence 2 contains the second bit, and so on, as exemplified below for 24 Tsetlin Automata:
+
+![Figure 4](https://github.com/olegranmo/blob/blob/master/Bit_Manipulation_3.png)
+
+The benefit of this representation is that the action of each Tsetlin Automaton is readily available from the most significant bit (sequence 8 in the figure). Thus, the output (recognized or not recognized pattern) can be obtained from the input based on fast bitwise operators (NOT, AND, and CMP - comparison). When deployed after training, only the sequence containing the most significant bit is required. The other sequences can be discarded because these bits are only used to keep track of the learning. This provides a further reduction in memory usage.
 
 ## MNIST Demo
 ```bash
@@ -110,18 +118,17 @@ The included dataset is a binarized, but otherwise unenhanced, version of the MN
 ............................
 ```
 ## Learning Behaviour
-The below figure depicts the learning progress of the Tsetlin Machine on the included MNIST dataset.
+The below figure depicts average learning progress (across 50 runs) of the Tsetlin Machine on the included MNIST dataset.
 
 ![Figure 4](https://github.com/olegranmo/blob/blob/master/learning_progress.png)
 
-As seen in the figure, both test and training accuracy increase across the epochs. Even while accuracy on the training data approaches 99.9%, accuracy on the test data continues to increase as well, hitting 98.2% after 400 epochs. This is quite different from what occurs with backpropagation on a neural network, where accuracy on test data starts to drop at some point due to overfitting, without proper regularization mechanisms.
+As seen in the figure, both test and training accuracy increase almost monotonically across the epochs. Even while accuracy on the training data approaches 99.9%, accuracy on the test data continues to increase as well, hitting 98.2% after 400 epochs. This is quite different from what occurs with backpropagation on a neural network, where accuracy on test data starts to drop at some point due to overfitting, without proper regularization mechanisms.
 
 ## Further Work
 
 * Perform a more extensive hyperparameter search (manipulating THRESHOLD, CLAUSES, STATE_BITS, and S in TsetlinMachineBitsConfig.h).
 * Evaluate different binarization and data augmentation approaches for MNIST, including deskewing, noise removal, blurring, and pixel shifts.
 * Investigate effect of using an ensemble of Tsetlin Machines.
-* Introduce bit-manipulation approach in the CUDA implementation (https://github.com/cair/TextUnderstandingTsetlinMachine).
 * Optimize code base further.
 
 ## Licence
